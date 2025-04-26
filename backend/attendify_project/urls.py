@@ -16,12 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include # Dodajemy include
-from events.views import EventCalendarView # Importujemy widok kalendarza
+from events.views import EventCalendarView, TrackClickView # Importujemy widoki kalendarza i śledzenia
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')), # Kierujemy ścieżkę /api/ do api.urls
 
     # Publiczny endpoint do pobierania pliku .ics
-    path('calendar/<str:public_id>/download.ics', EventCalendarView.as_view(), name='event-calendar-download'),
+    path('calendar/<uuid:public_id>/download.ics', EventCalendarView.as_view(), name='event-calendar-download'), # Używamy uuid dla public_id
+
+    # Publiczny endpoint do śledzenia kliknięć
+    path('track/<uuid:public_id>/<str:type>/', TrackClickView.as_view(), name='track-click'), # Używamy uuid dla public_id
 ]

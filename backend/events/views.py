@@ -1,11 +1,19 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
-from rest_framework import generics, views
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny # Dodajemy AllowAny
+from django.db.models import Count
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.http import urlencode # Do budowania URL-i Google Calendar
+from rest_framework import generics, views, status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated # Dodajemy IsAuthenticated
+from rest_framework.response import Response # Dodajemy Response
 from ics import Calendar, Event as ICSEvent # Importujemy bibliotekę ics
 
-from .models import Event
+from .models import Event, WidgetInteraction # Dodajemy WidgetInteraction
 from .serializers import EventSerializer
 from .permissions import IsOwnerOrReadOnly # Nasze niestandardowe uprawnienie
 
@@ -86,5 +94,115 @@ class EventCalendarView(views.APIView):
         # Przygotowujemy odpowiedź HTTP z plikiem .ics
         response = HttpResponse(str(c), content_type='text/calendar')
         # Ustawiamy nagłówek Content-Disposition, aby przeglądarka zaproponowała pobranie pliku
-        response['Content-Disposition'] = f'attachment; filename="{event.title}.ics"'
+        # Używamy prostego slugify tytułu dla nazwy pliku
+        filename = "".join(c if c.isalnum() else "_" for c in event.title) + ".ics"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+
+
+class TrackClickView(views.APIView):
+    """
+    Widok publiczny do śledzenia kliknięć w widżecie i przekierowania do celu.
+    URL: /track/{public_id}/{type}/
+    """
+    permission_classes = [AllowAny]
+
+    def get_client_ip(self, request):
+        """Pomocnicza funkcja do pobierania adresu IP klienta."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    def get(self, request, public_id, type, format=None):
+        event = get_object_or_404(Event, public_id=public_id)
+
+        # Sprawdzenie, czy typ jest poprawny (zdefiniowany w modelu)
+        valid_types = [t[0] for t in WidgetInteraction.INTERACTION_TYPES]
+        if type not in valid_types:
+            raise Http404("Invalid interaction type")
+
+        # Zapis interakcji (uwaga na GDPR - IP i User Agent)
+        ip_address = self.get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+        WidgetInteraction.objects.create(
+            event=event,
+            interaction_type=type,
+            ip_address=ip_address, # Rozważyć nie zapisywanie lub anonimizację
+            user_agent=user_agent   # Rozważyć nie zapisywanie lub anonimizację
+        )
+
+        # Przygotowanie URL docelowego
+        target_url = None
+        if type == 'google':
+            # Format daty dla Google Calendar: YYYYMMDDTHHMMSSZ
+            start_utc = event.start_datetime.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+            end_utc = event.end_datetime.astimezone(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+            params = {
+                'action': 'TEMPLATE',
+                'text': event.title,
+                'dates': f'{start_utc}/{end_utc}',
+                'details': event.description or '',
+                # 'location': event.location or '', # Jeśli dodamy lokalizację
+                'trp': 'false', # Show as busy
+            }
+            # Dodajemy URL webinaru do opisu, jeśli istnieje
+            if event.webinar_url:
+                params['details'] += f"\n\nLink do webinaru: {event.webinar_url}"
+
+            target_url = f"https://www.google.com/calendar/render?{urlencode(params)}"
+
+        elif type == 'ics' or type == 'outlook': # Na razie traktujemy Outlook tak samo jak ICS
+            # Generujemy URL do pobrania pliku .ics
+            target_url = request.build_absolute_uri(
+                reverse('event-calendar-download', kwargs={'public_id': public_id})
+            )
+
+        if target_url:
+            # Przekierowanie do celu
+            return HttpResponseRedirect(target_url)
+        else:
+            # Jeśli z jakiegoś powodu nie ma URL docelowego (np. nieznany typ)
+            raise Http404("Could not determine target URL")
+
+
+class EventStatsView(views.APIView):
+    """
+    Widok API do pobierania statystyk interakcji dla danego wydarzenia.
+    Dostępny tylko dla właściciela wydarzenia.
+    """
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly] # Wymaga zalogowania i bycia właścicielem
+
+    def get_object(self, pk):
+        """Pomocnicza metoda do pobierania obiektu Event."""
+        try:
+            return Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        event = self.get_object(pk)
+        # Sprawdzamy uprawnienia do obiektu (IsOwnerOrReadOnly)
+        self.check_object_permissions(request, event)
+
+        # Pobieramy interakcje dla tego wydarzenia
+        interactions = event.interactions.all()
+
+        # Liczymy interakcje
+        total_clicks = interactions.count()
+        clicks_by_type = interactions.values('interaction_type').annotate(count=Count('id')).order_by('-count')
+
+        # Przygotowujemy dane do odpowiedzi
+        # Można dodać bardziej zaawansowane statystyki, np. timeline
+        stats_data = {
+            "event_id": event.id,
+            "event_title": event.title,
+            "total_clicks": total_clicks,
+            "clicks_by_type": {item['interaction_type']: item['count'] for item in clicks_by_type},
+            # "clicks_timeline": [...] # TODO: Dodać agregację czasową, jeśli potrzebne
+        }
+
+        return Response(stats_data, status=status.HTTP_200_OK)
