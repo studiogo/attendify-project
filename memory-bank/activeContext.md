@@ -25,11 +25,12 @@
 *   **Zakończono podstawową implementację Modułu Events (Backend):** Zdefiniowano model `Event`, serializer, widoki CRUD API (`/api/events/`, `/api/events/{id}/`) oraz uprawnienia. Wykonano commit.
 *   **Zakończono podstawową implementację Modułu Customization (Backend):** Zdefiniowano model `UserSettings`, serializer, widok API (`/api/settings/iframe/`) do zarządzania domyślnymi ustawieniami. Wykonano commit.
 *   **Zakończono podstawową implementację Modułu Calendar (Backend):** Zainstalowano bibliotekę `ics`, zaimplementowano widok i publiczny endpoint (`/calendar/{public_id}/download.ics`) do pobierania plików `.ics`. Wykonano commit.
+*   **Zakończono podstawową implementację Modułu Analytics (Backend):** Zdefiniowano model `WidgetInteraction`, zaimplementowano publiczny endpoint śledzący (`/track/...`) oraz endpoint API do pobierania statystyk (`/api/events/{id}/stats/`). Wykonano commit.
 
 ## 3. Następne Kroki
 
-1.  **Implementacja Modułu Analytics (Backend):** Model `WidgetInteraction`, endpoint śledzący (`/track/{public_id}/{type}`) zapisujący interakcje, endpoint API do statystyk (`/api/events/{eventId}/stats`).
-2.  **Implementacja Modułu IframeGenerator (Backend):** Endpoint serwujący widżet (`/widget/event/{public_id}`).
+1.  **Implementacja Modułu IframeGenerator (Backend):** Endpoint serwujący widżet (`/widget/event/{public_id}`).
+2.  **Stworzenie interfejsu Panelu Organizatora (Frontend):** Implementacja widoków w React.
 3.  **Setup Bazy Danych (PostgreSQL):** Utworzenie użytkownika/bazy danych, konfiguracja połączenia w Django.
 4.  **Kontrola Wersji (Git):** Inicjalizacja repozytorium, utworzenie `.gitignore`, pierwszy commit.
 5.  **(Opcjonalnie) Docker:** Przygotowanie `Dockerfile` i `docker-compose.yml`.

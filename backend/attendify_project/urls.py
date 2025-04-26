@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include # Dodajemy include
-from events.views import EventCalendarView, TrackClickView # Importujemy widoki kalendarza i śledzenia
+from events.views import EventCalendarView, TrackClickView, WidgetRenderView # Importujemy widoki kalendarza, śledzenia i renderowania widżetu
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +27,7 @@ urlpatterns = [
 
     # Publiczny endpoint do śledzenia kliknięć
     path('track/<uuid:public_id>/<str:type>/', TrackClickView.as_view(), name='track-click'), # Używamy uuid dla public_id
+
+    # Publiczny endpoint do renderowania widżetu iframe
+    path('widget/event/<uuid:public_id>/', WidgetRenderView.as_view(), name='widget-render'), # Używamy uuid dla public_id
 ]

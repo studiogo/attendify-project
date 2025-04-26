@@ -4,10 +4,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Count
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render # Dodajemy render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import urlencode # Do budowania URL-i Google Calendar
+from django.views import View # Importujemy generyczny View
 from rest_framework import generics, views, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated # Dodajemy IsAuthenticated
 from rest_framework.response import Response # Dodajemy Response
@@ -206,3 +207,43 @@ class EventStatsView(views.APIView):
         }
 
         return Response(stats_data, status=status.HTTP_200_OK)
+
+
+class WidgetRenderView(View):
+    """
+    Widok publiczny renderujący HTML widżetu dla danego wydarzenia.
+    URL: /widget/event/{public_id}/
+    """
+    # Nie używamy permission_classes, bo to standardowy widok Django, nie DRF
+
+    def get(self, request, public_id, *args, **kwargs):
+        event = get_object_or_404(Event, public_id=public_id)
+
+        # Pobieramy ustawienia personalizacji
+        # Najpierw sprawdzamy ustawienia specyficzne dla wydarzenia
+        customization = event.customization_settings or {}
+        # Jeśli brakuje ustawień w wydarzeniu, próbujemy pobrać domyślne użytkownika
+        if not customization:
+            try:
+                user_settings = event.user.settings # Zakładamy, że UserSettings istnieje (można dodać obsługę błędu)
+                customization = user_settings.iframe_defaults or {}
+            except AttributeError: # Jeśli user.settings nie istnieje
+                customization = {}
+
+        # Generujemy URL-e do śledzenia kliknięć
+        track_urls = {
+            'google': request.build_absolute_uri(reverse('track-click', kwargs={'public_id': public_id, 'type': 'google'})),
+            'ics': request.build_absolute_uri(reverse('track-click', kwargs={'public_id': public_id, 'type': 'ics'})),
+            'outlook': request.build_absolute_uri(reverse('track-click', kwargs={'public_id': public_id, 'type': 'outlook'})),
+        }
+
+        context = {
+            'event': event,
+            'customization': customization,
+            'track_urls': track_urls,
+        }
+
+        # Renderujemy szablon
+        # Upewnijmy się, że Django wie, gdzie szukać szablonów aplikacji 'events'
+        # (powinno działać domyślnie, jeśli 'APP_DIRS': True w settings.py)
+        return render(request, 'events/widget.html', context)
