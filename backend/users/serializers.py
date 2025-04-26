@@ -3,6 +3,21 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from .models import UserSettings # Importujemy model UserSettings
+
+
+class UserSettingsSerializer(serializers.ModelSerializer):
+    """
+    Serializer do zarządzania domyślnymi ustawieniami personalizacji iframe użytkownika.
+    """
+    # Pole user jest tylko do odczytu, bo jest kluczem głównym i powiązane z zalogowanym użytkownikiem
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = UserSettings
+        fields = ['user', 'iframe_defaults', 'updated_at']
+        read_only_fields = ['user', 'updated_at'] # Tylko iframe_defaults można modyfikować
+
 
 class UserSerializer(serializers.ModelSerializer):
     """

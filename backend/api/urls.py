@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView, # Opcjonalnie: do weryfikacji tokenu
 )
 # Importuj widoki z innych aplikacji API (np. users, events) w miarę ich tworzenia
-from users.views import RegisterView, CurrentUserView # Dodajemy CurrentUserView
+from users.views import RegisterView, CurrentUserView, UserSettingsView # Dodajemy UserSettingsView
 
 app_name = 'api'
 
@@ -23,6 +23,8 @@ urlpatterns = [
     # Ścieżki dla modułu Events
     path('events/', include('events.urls')),
 
+    # Ścieżka dla ustawień użytkownika (personalizacja iframe)
+    path('settings/iframe/', UserSettingsView.as_view(), name='user-settings'),
+
     # Tutaj dodamy ścieżki dla innych endpointów API w przyszłości
-    # np. path('settings/', include('settings.urls')), # Przykład dla przyszłego modułu ustawień
 ]

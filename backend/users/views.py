@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated # Dodajemy IsAu
 from rest_framework.response import Response
 from rest_framework.views import APIView # Dodajemy APIView
 
-from .serializers import UserRegisterSerializer, UserSerializer # Dodajemy UserSerializer
+from .models import UserSettings # Importujemy model
+from .serializers import UserRegisterSerializer, UserSerializer, UserSettingsSerializer # Dodajemy UserSettingsSerializer
 
 class RegisterView(generics.CreateAPIView):
     """
@@ -47,3 +48,22 @@ class CurrentUserView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user) # Serializujemy obiekt request.user
         return Response(serializer.data)
+
+
+class UserSettingsView(generics.RetrieveUpdateAPIView):
+    """
+    Widok API do pobierania i aktualizacji domyślnych ustawień personalizacji
+    iframe dla zalogowanego użytkownika.
+    Automatycznie tworzy obiekt UserSettings, jeśli jeszcze nie istnieje.
+    """
+    serializer_class = UserSettingsSerializer
+    permission_classes = [IsAuthenticated] # Tylko zalogowani użytkownicy
+
+    def get_object(self):
+        # Pobieramy lub tworzymy obiekt UserSettings dla zalogowanego użytkownika
+        # get_or_create zwraca krotkę (object, created_boolean)
+        settings, created = UserSettings.objects.get_or_create(user=self.request.user)
+        return settings
+
+    # Metoda perform_update nie jest potrzebna, bo RetrieveUpdateAPIView
+    # sam zapisze zmiany w obiekcie zwróconym przez get_object.
