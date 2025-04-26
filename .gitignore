@@ -14,7 +14,7 @@ build/
 backend/venv/
 
 # Environment variables
-backend/.env
+.env # Ignore .env file in the root directory
 
 # Node.js
 frontend/attendify-panel/node_modules/

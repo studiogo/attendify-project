@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.6 # Używamy obrazu MariaDB zgodnego z wersją systemową
+    container_name: attendify_db
+    volumes:
+      - mariadb_data:/var/lib/mysql # Używamy wolumenu do przechowywania danych bazy
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-supersecretpassword} # Hasło roota - lepiej ustawić w zmiennej środowiskowej hosta
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306" # Mapujemy port bazy danych na 3307 na hoście, aby uniknąć konfliktu z systemowym MariaDB
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+  backend:
+    build: ./backend
+    container_name: attendify_backend
+    volumes:
+      - ./backend:/app # Mapujemy kod backendu do kontenera dla łatwego developmentu
+    ports:
+      - "8000:8000" # Mapujemy port Django
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db # Nazwa hosta bazy danych to nazwa usługi 'db' w Docker Compose
+      - DB_PORT=3306
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-localdevsecretkey} # Klucz Django - lepiej ustawić w zmiennej środowiskowej hosta
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend} # Dodajemy 'backend' do dozwolonych hostów
+    depends_on:
+      db:
+        condition: service_healthy # Czekamy aż baza danych będzie gotowa
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build: ./frontend/attendify-panel
+    container_name: attendify_frontend
+    ports:
+      - "3000:80" # Mapujemy port Nginx (80 w kontenerze) na port 3000 na hoście
+    # W trybie deweloperskim można by mapować wolumeny i używać `npm start`,
+    # ale dla prostoty na razie używamy zbudowanego obrazu Nginx.
+    # volumes:
+    #   - ./frontend/attendify-panel:/app
+    #   - /app/node_modules # Unikamy nadpisywania node_modules z hosta
+    # command: npm start # Uruchomienie serwera deweloperskiego React
+
+volumes:
+  mariadb_data: # Definicja wolumenu dla danych bazy danych
