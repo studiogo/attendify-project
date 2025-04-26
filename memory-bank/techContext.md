@@ -1,14 +1,13 @@
 dziala# techContext.md
 
 ## Technologie i narzędzia
-- **Frontend:** React (create-react-app), react-router-dom, build serwowany przez Nginx z `/public_html/panel`
+- **Frontend:** React (create-react-app), react-router-dom
 - **Backend:** Django 4.x, Django REST Framework, Simple JWT
-- **Serwer:** Nginx (statyczne pliki React, reverse proxy jeśli potrzebne)
+- **Baza danych:** MySQL (na serwerze), PostgreSQL (lokalnie w Dockerze)
+- **Konteneryzacja:** Docker, Docker Compose (dla backendu i bazy danych)
+- **Serwer produkcyjny:** Linux, Nginx (serwowanie statycznego builda React), Apache (za Nginx, obsługa Django - prawdopodobnie), DirectAdmin
+- **Środowisko deweloperskie (lokalne):** Windows/macOS/Linux z Node.js, Python, Docker Desktop
 - **Autoryzacja:** JWT (logowanie, odświeżanie, weryfikacja tokenu)
-- **Baza danych:** domyślnie SQLite lub PostgreSQL (wg ustawień Django)
-- **Docker:** docker-compose dla backendu i frontendu (dev)
-- **Deploy:** build React kopiowany do katalogu `/public_html/panel`, backend uruchamiany przez Docker
-- **Środowisko:** Linux, DirectAdmin (zarządzanie vhostami)
 
 ## Zależności frontend
 - react, react-dom, react-router-dom, react-scripts, web-vitals
@@ -24,16 +23,45 @@ dziala# techContext.md
 
 ## Ograniczenia i uwagi
 - Pliki statyczne React muszą być budowane z poprawnym publicPath (homepage w package.json)
-- Panel dostępny pod `/panel/` – wszystkie ścieżki muszą być zgodne z tym prefixem
-- Reverse proxy Nginx nie jest wymagane przy serwowaniu statycznych plików, ale może być użyte w przyszłości
+- Panel React (frontend) jest dostępny na produkcji pod ścieżką `/panel/`.
 
-## Proces budowania frontendu (WAŻNE!)
-- **Ograniczenie serwera:** Serwer VPS posiada niewystarczającą ilość pamięci RAM/swap, aby zbudować projekt React z użyciem większych bibliotek UI (np. Ant Design, Chakra UI). Próby budowania na serwerze kończą się błędem braku pamięci.
-- **Wymagane budowanie lokalne:** Proces `npm run build` dla frontendu **musi** być wykonywany na lokalnym komputerze programisty.
-- **Kroki budowania lokalnego:**
-    1.  **Wymagania:** Zainstalowany Node.js (LTS) i npm, opcjonalnie Git.
-    2.  **Pobranie kodu:** Sklonować repozytorium lub pobrać pliki projektu z serwera. Upewnić się, że kod jest aktualny.
-    3.  **Instalacja zależności:** W terminalu, w katalogu `frontend/attendify-panel`, uruchomić `npm install`.
-    4.  **(Opcjonalnie) Instalacja biblioteki UI:** Jeśli wybrano bibliotekę UI, zainstalować ją (np. `npm install antd`).
-    5.  **Budowanie:** Uruchomić `npm run build`. W katalogu `frontend/attendify-panel` zostanie utworzony podkatalog `build`.
-    6.  **Wgranie na serwer:** Skopiować **zawartość** lokalnego katalogu `build` na serwer do ścieżki `/home/admin/domains/attendify.pl/public_html/panel/`, nadpisując istniejące pliki (np. za pomocą WinSCP, FileZilla).
+## Lokalne środowisko deweloperskie
+- **Wymagania:**
+    - Node.js (wersja LTS) i npm
+    - Python (wersja zgodna z Django, np. 3.9+)
+    - Docker i Docker Compose (lub Docker Desktop dla Windows/macOS)
+    - Git
+- **Uruchomienie frontendu:**
+    1. Przejdź do katalogu `frontend/attendify-panel`.
+    2. Uruchom `npm install` (instalacja zależności).
+    3. Uruchom `npm start` (uruchomienie serwera deweloperskiego React, zazwyczaj na `http://localhost:3000`).
+- **Uruchomienie backendu:**
+    1. Przejdź do głównego katalogu projektu.
+    2. Utwórz plik `.env` w katalogu `backend/` (na podstawie `backend/attendify_project/settings.py` i `.env` z serwera, jeśli potrzebne są klucze). Wymagane zmienne dla lokalnego środowiska Docker:
+        ```dotenv
+        # Zmienne dla bazy danych PostgreSQL w Dockerze (zgodnie z docker-compose.yml)
+        DB_ENGINE=django.db.backends.postgresql
+        DB_NAME=attendify_db_local
+        DB_USER=attendify_user_local
+        DB_PASSWORD=attendify_password_local
+        DB_HOST=db # Nazwa usługi bazy danych w docker-compose.yml
+        DB_PORT=5432
+
+        # Klucz sekretny Django (wygeneruj nowy dla środowiska lokalnego)
+        DJANGO_SECRET_KEY='wygeneruj_nowy_bezpieczny_klucz_tutaj'
+
+        # Ustawienia debugowania
+        DJANGO_DEBUG=True
+        DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+        ```
+    3. Uruchom kontenery: `docker-compose up -d`. Spowoduje to uruchomienie backendu Django i bazy danych PostgreSQL.
+    4. Wykonaj migracje bazy danych: `docker-compose exec backend python manage.py migrate`.
+    5. Backend będzie dostępny pod adresem `http://localhost:8000` (zgodnie z `docker-compose.yml`).
+- **Ważne:** Frontend uruchomiony przez `npm start` będzie automatycznie odświeżał się po zmianach w kodzie. Backend w kontenerze Docker również powinien automatycznie przeładowywać się po zmianach dzięki konfiguracji woluminów w `docker-compose.yml`.
+
+## Wdrażanie na serwer produkcyjny
+- **Ograniczenie serwera:** Serwer produkcyjny ma za mało pamięci, aby zbudować frontend z większymi bibliotekami UI.
+- **Proces:**
+    1. Wykonaj `npm run build` **lokalnie** w katalogu `frontend/attendify-panel`.
+    2. Skopiuj **zawartość** lokalnego katalogu `build` na serwer do `/home/admin/domains/attendify.pl/public_html/panel/`.
+    3. Upewnij się, że backend na serwerze jest uruchomiony (prawdopodobnie przez `docker-compose up -d` lub inną metodę wdrożenia).

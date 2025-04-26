@@ -1,17 +1,22 @@
 # progress.md
 
-## Co działa
-- Panel Attendify (frontend React) jest dostępny pod https://attendify.pl/panel/ i serwowany przez Nginx.
-- Statyczne pliki React są poprawnie serwowane (rozwiązano problem z 404).
-- Backend Django (DRF) udostępnia kompletne API do rejestracji, logowania (JWT), pobierania danych użytkownika oraz zarządzania wydarzeniami.
+## Co działa (na serwerze produkcyjnym)
+- Podstawowa wersja panelu Attendify (frontend React) jest dostępna pod https://attendify.pl/panel/.
+- Routing React działa dla podstawowych ścieżek (`/`, `/login`, `/register`).
+- Backend Django (DRF) w kontenerze Docker udostępnia API.
 
-## Co zostało do zrobienia
-- Wdrożenie ekranu logowania w panelu (integracja z /api/auth/token/).
-- Wdrożenie rejestracji użytkownika (integracja z /api/auth/register/).
-- Obsługa przechowywania i odświeżania tokenu JWT.
-- Pobieranie danych zalogowanego użytkownika (/api/auth/me/).
-- Po zalogowaniu – dashboard z listą wydarzeń i operacjami CRUD.
+## Co zostało do zrobienia (w środowisku lokalnym)
+- **Konfiguracja środowiska lokalnego:** Programista musi skonfigurować lokalne środowisko zgodnie z `techContext.md`.
+- **Wybór i integracja biblioteki UI:** Wybór i dodanie biblioteki (np. Ant Design) do frontendu.
+- **Implementacja frontendu:**
+    - Ekran logowania (integracja z `/api/auth/token/`).
+    - Ekran rejestracji (integracja z `/api/auth/register/`).
+    - Obsługa tokenów JWT (przechowywanie, odświeżanie).
+    - Pobieranie danych użytkownika (`/api/auth/me/`).
+    - Dashboard (wyświetlanie wydarzeń, CRUD).
+- **Testowanie:** Lokalnie i na serwerze po wdrożeniu builda.
 
 ## Status
-- Frontend i backend są gotowe do integracji.
-- Kolejny krok: implementacja logowania w panelu.
+- **Praca przeniesiona na środowisko lokalne:** Ze względu na ograniczenia pamięci serwera, dalszy rozwój (zwłaszcza frontendu z bibliotekami UI) musi odbywać się lokalnie.
+- **Zablokowane na serwerze:** Brak możliwości budowania frontendu na serwerze.
+- **Kolejny krok:** Skonfigurowanie i uruchomienie projektu lokalnie przez programistę.
