@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include # Dodajemy include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -20,6 +20,9 @@ urlpatterns = [
     # Pobranie danych zalogowanego użytkownika
     path('auth/me/', CurrentUserView.as_view(), name='current_user'),
 
+    # Ścieżki dla modułu Events
+    path('events/', include('events.urls')),
+
     # Tutaj dodamy ścieżki dla innych endpointów API w przyszłości
-    # np. path('events/', include('events.urls')),
+    # np. path('settings/', include('settings.urls')), # Przykład dla przyszłego modułu ustawień
 ]

@@ -21,11 +21,12 @@
 *   **Zakończono Setup Bazy Danych (MySQL/MariaDB):** Utworzono użytkownika/bazę, zainstalowano zależności (`libmariadb-dev`, `mysqlclient`, `python-dotenv`), utworzono plik `.env`, skonfigurowano `settings.py`, pomyślnie uruchomiono migracje.
 *   **Zakończono podstawowy Setup Kontroli Wersji (Git):** Zainicjalizowano repozytorium, utworzono `.gitignore`, wykonano pierwszy commit.
 *   **Zakończono konfigurację Docker:** Utworzono `Dockerfile` dla backendu i frontendu, `docker-compose.yml`, przeniesiono `.env`, zaktualizowano `.gitignore`, wykonano commit.
+*   **Zakończono podstawową implementację Modułu Auth (Backend):** Zainstalowano DRF/SimpleJWT, skonfigurowano settings/urls, zaimplementowano endpointy: rejestracji (`/api/auth/register/`), logowania (`/api/auth/token/`), odświeżania tokenu (`/api/auth/token/refresh/`) i pobierania danych użytkownika (`/api/auth/me/`). Wykonano commit.
 
 ## 3. Następne Kroki
 
-1.  **Implementacja Modułu Auth (Backend):** Rozpoczęcie kodowania funkcjonalności rejestracji, logowania, zarządzania sesją/tokenami JWT w Django.
-2.  **Implementacja Modułu Events (Backend):** CRUD dla wydarzeń w Django.
+1.  **Implementacja Modułu Events (Backend):** CRUD dla wydarzeń w Django (modele, serializery, widoki, URL-e).
+2.  **Implementacja Modułu Customization (Backend):** Model `UserSettings`, endpointy API do zarządzania domyślnymi ustawieniami.
 3.  **Setup Bazy Danych (PostgreSQL):** Utworzenie użytkownika/bazy danych, konfiguracja połączenia w Django.
 4.  **Kontrola Wersji (Git):** Inicjalizacja repozytorium, utworzenie `.gitignore`, pierwszy commit.
 5.  **(Opcjonalnie) Docker:** Przygotowanie `Dockerfile` i `docker-compose.yml`.
