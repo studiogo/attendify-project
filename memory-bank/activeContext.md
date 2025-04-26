@@ -20,11 +20,12 @@
 *   **Zakończono podstawowy Setup Frontendu (React):** Zainicjowano projekt `attendify-panel` za pomocą `create-react-app` w katalogu `frontend/`.
 *   **Zakończono Setup Bazy Danych (MySQL/MariaDB):** Utworzono użytkownika/bazę, zainstalowano zależności (`libmariadb-dev`, `mysqlclient`, `python-dotenv`), utworzono plik `.env`, skonfigurowano `settings.py`, pomyślnie uruchomiono migracje.
 *   **Zakończono podstawowy Setup Kontroli Wersji (Git):** Zainicjalizowano repozytorium, utworzono `.gitignore`, wykonano pierwszy commit.
+*   **Zakończono konfigurację Docker:** Utworzono `Dockerfile` dla backendu i frontendu, `docker-compose.yml`, przeniesiono `.env`, zaktualizowano `.gitignore`, wykonano commit.
 
 ## 3. Następne Kroki
 
-1.  **(Opcjonalnie) Docker:** Przygotowanie `Dockerfile` i `docker-compose.yml`.
-2.  **Implementacja Modułu Auth (Backend):** Rozpoczęcie kodowania funkcjonalności rejestracji, logowania, zarządzania sesją/tokenami JWT w Django.
+1.  **Implementacja Modułu Auth (Backend):** Rozpoczęcie kodowania funkcjonalności rejestracji, logowania, zarządzania sesją/tokenami JWT w Django.
+2.  **Implementacja Modułu Events (Backend):** CRUD dla wydarzeń w Django.
 3.  **Setup Bazy Danych (PostgreSQL):** Utworzenie użytkownika/bazy danych, konfiguracja połączenia w Django.
 4.  **Kontrola Wersji (Git):** Inicjalizacja repozytorium, utworzenie `.gitignore`, pierwszy commit.
 5.  **(Opcjonalnie) Docker:** Przygotowanie `Dockerfile` i `docker-compose.yml`.

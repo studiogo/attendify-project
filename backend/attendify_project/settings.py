@@ -51,7 +51,9 @@ INSTALLED_APPS = [
     'events.apps.EventsConfig',
     'api.apps.ApiConfig',
 
-    # Third-party apps (add as needed, e.g., rest_framework)
+    # Third-party apps
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +145,59 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Django REST Framework settings
+# https://www.django-rest-framework.org/api-guide/settings/
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Można dodać inne metody, np. SessionAuthentication, jeśli API ma być dostępne też dla zalogowanych w sesji
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly', # Domyślnie: zalogowani mogą wszystko, niezalogowani tylko odczyt (GET, HEAD, OPTIONS)
+    )
+    # Można dodać inne ustawienia, np. paginację, throttling
+}
+
+# Simple JWT settings
+# https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60), # Czas życia tokenu dostępowego (np. 1 godzina)
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),    # Czas życia tokenu odświeżającego (np. 1 dzień)
+    "ROTATE_REFRESH_TOKENS": False, # Czy odświeżenie ma generować nowy refresh token? Raczej nie na początek.
+    "BLACKLIST_AFTER_ROTATION": False, # Czy stary refresh token ma trafić na czarną listę?
+    "UPDATE_LAST_LOGIN": True, # Czy aktualizować pole last_login użytkownika przy odświeżaniu?
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY, # Używamy tego samego sekretnego klucza co Django
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",), # Typ nagłówka autoryzacji (standardowo "Bearer")
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5), # Nie używamy sliding tokens na razie
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    # Opcjonalnie: Można dodać własne pola (claims) do tokenu
+    # "CLAIMS_NAMESPACE": None,
+    # "CLAIM_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+}
