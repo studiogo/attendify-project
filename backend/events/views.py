@@ -1,5 +1,9 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly # Domyślne uprawnienia DRF
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import generics, views
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny # Dodajemy AllowAny
+from ics import Calendar, Event as ICSEvent # Importujemy bibliotekę ics
 
 from .models import Event
 from .serializers import EventSerializer
@@ -48,3 +52,39 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     # Domyślnie DRF używa 'pk' jako klucza w URL, co jest OK.
     # lookup_field = 'pk'
+
+
+class EventCalendarView(views.APIView):
+    """
+    Widok API do generowania i pobierania pliku .ics dla wydarzenia.
+    Dostępny publicznie na podstawie public_id wydarzenia.
+    """
+    permission_classes = [AllowAny] # Dostępny publicznie
+
+    def get(self, request, public_id, format=None):
+        # Pobieramy wydarzenie na podstawie public_id
+        event = get_object_or_404(Event, public_id=public_id)
+
+        # Tworzymy obiekt kalendarza i wydarzenia z biblioteki ics
+        c = Calendar()
+        e = ICSEvent()
+
+        e.name = event.title
+        e.begin = event.start_datetime
+        e.end = event.end_datetime
+        if event.description:
+            e.description = event.description
+        # Można dodać lokalizację, jeśli mielibyśmy takie pole w modelu
+        # e.location = event.location
+        if event.webinar_url:
+             # Dodajemy URL webinaru do opisu, bo nie ma dedykowanego pola w standardzie iCalendar
+             e.description = f"{e.description or ''}\n\nLink do webinaru: {event.webinar_url}".strip()
+
+        # Dodajemy wydarzenie do kalendarza
+        c.events.add(e)
+
+        # Przygotowujemy odpowiedź HTTP z plikiem .ics
+        response = HttpResponse(str(c), content_type='text/calendar')
+        # Ustawiamy nagłówek Content-Disposition, aby przeglądarka zaproponowała pobranie pliku
+        response['Content-Disposition'] = f'attachment; filename="{event.title}.ics"'
+        return response
