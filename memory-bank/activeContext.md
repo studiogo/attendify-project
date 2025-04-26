@@ -1,57 +1,29 @@
-# Active Context: Attendify
+# activeContext.md
 
-**Wersja:** 0.1
-**Data:** 2025-04-26
+## Ostatnie działania
+- Panel Attendify (frontend React) został zbudowany i wdrożony do katalogu `/home/admin/domains/attendify.pl/public_html/panel`.
+- Nginx serwuje statyczne pliki React bezpośrednio pod adresem `https://attendify.pl/panel/`.
+- Rozwiązano problem z błędami 404 plików statycznych przez ustawienie `"homepage": "https://attendify.pl/panel"` w `package.json` i ponowny build.
+- Panel wyświetla nagłówek "Attendify Panel". Routing działa poprawnie.
+- **Problem:** Próby dodania bibliotek UI (Ant Design, Chakra UI) i przebudowania aplikacji na serwerze nie powiodły się z powodu niewystarczającej ilości pamięci (RAM/swap).
 
-## 1. Aktualny Fokus Pracy
+## Aktualny problem i rozwiązanie
+- **Problem:** Serwer VPS ma zbyt mało pamięci, aby zbudować projekt React z użyciem większych bibliotek UI.
+- **Rozwiązanie:** Proces budowania frontendu (`npm run build`) musi być wykonywany **lokalnie** na komputerze programisty, a następnie gotowy katalog `build` musi zostać wgrany na serwer do `/home/admin/domains/attendify.pl/public_html/panel/`. Szczegółowe instrukcje znajdują się w `techContext.md`.
 
-*   **Inicjalizacja Projektu:** Tworzenie podstawowej struktury projektu i dokumentacji (Memory Bank) na podstawie dostarczonej specyfikacji technicznej v0.3.
-*   **Przygotowanie do Implementacji Fazy 1:** Zdefiniowanie i udokumentowanie wymagań, architektury, modelu danych i API dla pierwszej fazy rozwoju Attendify.
+## Stan backendu
+- API Django (DRF) jest gotowe i udostępnia:
+  - Rejestrację użytkownika (`/api/auth/register/`)
+  - Logowanie JWT (`/api/auth/token/`)
+  - Odświeżanie tokenu (`/api/auth/token/refresh/`)
+  - Pobieranie danych zalogowanego użytkownika (`/api/auth/me/`)
+  - Zarządzanie wydarzeniami (`/api/events/`, `/api/events/{id}/`, statystyki, kalendarz, widgety)
+- Możliwa jest pełna integracja panelu z backendem.
 
-## 2. Ostatnie Zmiany
-
-*   Utworzono strukturę katalogów `memory-bank/`.
-*   Utworzono i wypełniono podstawowe pliki Memory Bank (v0.1).
-*   Potwierdzono użycie domeny `https://attendify.pl`.
-*   **Wybrano finalny stos technologiczny:** Backend: Django, Frontend: React, Baza: **MySQL/MariaDB**.
-*   Zaktualizowano `techContext.md` i `activeContext.md` o wybrany stos i bazę danych.
-*   **Utworzono podstawową strukturę katalogów projektu:** `backend/`, `frontend/`.
-*   **Zakończono podstawowy Setup Backendu (Django):** Utworzono venv, zainstalowano Django, utworzono projekt `attendify_project` oraz aplikacje `users`, `events`, `api`.
-*   **Zakończono podstawowy Setup Frontendu (React):** Zainicjowano projekt `attendify-panel` za pomocą `create-react-app` w katalogu `frontend/`.
-*   **Zakończono Setup Bazy Danych (MySQL/MariaDB):** Utworzono użytkownika/bazę, zainstalowano zależności (`libmariadb-dev`, `mysqlclient`, `python-dotenv`), utworzono plik `.env`, skonfigurowano `settings.py`, pomyślnie uruchomiono migracje.
-*   **Zakończono podstawowy Setup Kontroli Wersji (Git):** Zainicjalizowano repozytorium, utworzono `.gitignore`, wykonano pierwszy commit.
-*   **Zakończono konfigurację Docker:** Utworzono `Dockerfile` dla backendu i frontendu, `docker-compose.yml`, przeniesiono `.env`, zaktualizowano `.gitignore`, wykonano commit.
-*   **Zakończono podstawową implementację Modułu Auth (Backend):** Zainstalowano DRF/SimpleJWT, skonfigurowano settings/urls, zaimplementowano endpointy: rejestracji (`/api/auth/register/`), logowania (`/api/auth/token/`), odświeżania tokenu (`/api/auth/token/refresh/`) i pobierania danych użytkownika (`/api/auth/me/`). Wykonano commit.
-*   **Zakończono podstawową implementację Modułu Events (Backend):** Zdefiniowano model `Event`, serializer, widoki CRUD API (`/api/events/`, `/api/events/{id}/`) oraz uprawnienia. Wykonano commit.
-*   **Zakończono podstawową implementację Modułu Customization (Backend):** Zdefiniowano model `UserSettings`, serializer, widok API (`/api/settings/iframe/`) do zarządzania domyślnymi ustawieniami. Wykonano commit.
-*   **Zakończono podstawową implementację Modułu Calendar (Backend):** Zainstalowano bibliotekę `ics`, zaimplementowano widok i publiczny endpoint (`/calendar/{public_id}/download.ics`) do pobierania plików `.ics`. Wykonano commit.
-*   **Zakończono podstawową implementację Modułu Analytics (Backend):** Zdefiniowano model `WidgetInteraction`, zaimplementowano publiczny endpoint śledzący (`/track/...`) oraz endpoint API do pobierania statystyk (`/api/events/{id}/stats/`). Wykonano commit.
-
-## 3. Następne Kroki
-
-1.  **Implementacja Modułu IframeGenerator (Backend):** Endpoint serwujący widżet (`/widget/event/{public_id}`).
-2.  **Stworzenie interfejsu Panelu Organizatora (Frontend):** Implementacja widoków w React.
-3.  **Setup Bazy Danych (PostgreSQL):** Utworzenie użytkownika/bazy danych, konfiguracja połączenia w Django.
-4.  **Kontrola Wersji (Git):** Inicjalizacja repozytorium, utworzenie `.gitignore`, pierwszy commit.
-5.  **(Opcjonalnie) Docker:** Przygotowanie `Dockerfile` i `docker-compose.yml`.
-6.  **Implementacja Modułu Auth (Backend):** Rozpoczęcie kodowania funkcjonalności rejestracji, logowania, zarządzania sesją/tokenami JWT w Django.
-3.  **Implementacja Modułu Events (Backend):** CRUD dla wydarzeń w Django.
-4.  **Implementacja Modułu Events:** CRUD dla wydarzeń.
-5.  **Implementacja Modułu Customization:** Zarządzanie domyślnymi i specyficznymi dla wydarzenia ustawieniami personalizacji.
-6.  **Implementacja Modułu Calendar:** Generowanie linków Google Calendar i plików `.ics`.
-7.  **Implementacja podstawowego Modułu Analytics:** Endpointy śledzące (`/track`) i zapisujące interakcje (z uwzględnieniem GDPR).
-8.  **Implementacja Modułu IframeGenerator:** Endpoint serwujący widżet (`/widget/event/{public_id}`).
-9.  **Stworzenie interfejsu Panelu Organizatora:** Implementacja widoków frontendu.
-10. **Testowanie:** Jednostkowe, integracyjne, E2E, wydajnościowe (`/track`).
-11. **Konfiguracja serwera (VPS):** DNS dla `attendify.pl`, serwer WWW (Nginx/Apache), HTTPS (Let's Encrypt), CORS.
-12. **Dokumentacja dla użytkowników.**
-13. **Wdrożenie Fazy 1** na `https://attendify.pl`.
-
-## 4. Aktywne Decyzje i Rozważania
-
-*   **Architektura:** Potwierdzono monolit modułowy z podejściem API-First.
-*   **Domena:** `https://attendify.pl` jest główną domeną projektu.
-*   **Hosting:** Wybrano VPS i konteneryzację Docker.
-*   **Baza Danych:** **MySQL/MariaDB** (dostępna w systemie).
-*   **Kluczowe Wyzwania (do monitorowania):** Wydajność endpointu `/track`, zgodność z GDPR, konfiguracja CORS, bezpieczeństwo (JWT, XSS, CSRF).
-*   **Stos Technologiczny:** **Wybrano:** Backend - **Python/Django**, Frontend - **React**, Baza Danych - **MySQL/MariaDB**.
+## Decyzje i kolejne kroki
+- **Zablokowane:** Dalszy rozwój frontendu (dodawanie stylów, integracja z API) jest zablokowany do czasu wgrania na serwer builda wykonanego lokalnie przez programistę.
+- **Następny krok (dla programisty):**
+    1. Pobrać aktualny kod projektu na lokalny komputer.
+    2. Wykonać kroki budowania lokalnego opisane w `techContext.md` (w tym instalacja wybranej biblioteki UI, jeśli jest taka decyzja).
+    3. Wgrać zawartość lokalnego katalogu `build` do `/home/admin/domains/attendify.pl/public_html/panel/` na serwerze.
+    4. Poinformować Cline o wgraniu nowego builda, aby można było kontynuować pracę.
