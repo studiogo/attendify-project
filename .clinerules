@@ -1,0 +1,19 @@
+# Cline's Learning Journal for Attendify Project
+
+This file captures important patterns, preferences, and project intelligence that help me work more effectively.
+
+## Project-Specific Patterns
+
+*   The project follows a modular monolith architecture.
+*   The backend exposes a RESTful API at https://attendify.pl/api/....
+*   Iframe interactions are stateless and based on public\_id.
+
+## Tool Usage Patterns
+
+*   `write_to_file` is used for creating new files and initializing the memory bank.
+*   `replace_in_file` will be used for making targeted edits to existing files.
+
+## Known Challenges
+
+*   Ensuring GDPR compliance when logging IP addresses in `widget_interactions`.
+*   Optimizing the performance of click tracking in the `/track` endpoint.
