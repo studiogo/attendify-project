@@ -6,11 +6,11 @@
 - Rozwiązano problem z błędami 404 plików statycznych przez ustawienie `"homepage": "https://attendify.pl/panel"` w `package.json` i ponowny build.
 - Panel wyświetla nagłówek "Attendify Panel". Routing działa poprawnie.
 - **Problem:** Serwer VPS ma zbyt mało pamięci, aby zbudować projekt React z użyciem większych bibliotek UI.
-- **Decyzja:** Przechodzimy na w pełni lokalny przepływ pracy (local development workflow). Budowanie i uruchamianie aplikacji (frontend i backend) będzie odbywać się na komputerze programisty. Serwer będzie używany tylko do wdrożenia produkcyjnej wersji.
+- **Decyzja:** Praca nad projektem została przeniesiona na lokalne środowisko deweloperskie z powodu ograniczeń pamięci serwera VPS uniemożliwiających budowanie frontendu z bibliotekami UI.
 
-## Aktualny problem i rozwiązanie
-- **Problem:** Konieczność skonfigurowania lokalnego środowiska deweloperskiego.
-- **Rozwiązanie:** Programista pobierze kod z repozytorium Git i skonfiguruje lokalne środowisko zgodnie z instrukcjami w `techContext.md`.
+## Status środowiska lokalnego
+- **Sukces:** Programista pomyślnie skonfigurował i uruchomił lokalne środowisko deweloperskie (frontend na `localhost:3000`, backend i baza danych w Dockerze na `localhost:8000`).
+- **Gotowość:** Projekt jest gotowy do dalszego rozwoju funkcjonalności w środowisku lokalnym.
 
 ## Stan backendu
 - API Django (DRF) jest gotowe i udostępnia:
@@ -22,13 +22,10 @@
 - Możliwa jest pełna integracja panelu z backendem.
 
 ## Decyzje i kolejne kroki
-- **Priorytet:** Skonfigurowanie lokalnego środowiska deweloperskiego przez programistę.
-- **Następny krok (dla programisty):**
-    1. Pobrać kod projektu z repozytorium Git (`git clone https://github.com/studiogo/attendify-project.git`).
-    2. Zainstalować wymagane oprogramowanie (Node.js, Python, Docker Desktop).
-    3. Skonfigurować lokalne środowisko uruchomieniowe dla frontendu i backendu zgodnie z instrukcjami w `techContext.md`.
-    4. Uruchomić lokalnie frontend (`npm start`) i backend (`docker-compose up -d`).
-    5. Poinformować Cline o gotowości do dalszej pracy w środowisku lokalnym.
-- **Dalsze kroki (po uruchomieniu lokalnym):**
-    - Wybór i integracja biblioteki UI (np. Ant Design).
-    - Implementacja logowania, rejestracji, dashboardu itd.
+- **Priorytet:** Rozpoczęcie implementacji funkcjonalności frontendu w środowisku lokalnym.
+- **Następny krok:** Wybór i integracja biblioteki UI (np. Ant Design, Chakra UI, React Bootstrap) lub rozpoczęcie stylowania ręcznego.
+- **Dalsze kroki:**
+    - Implementacja logowania (formularz + integracja z API `/api/auth/token/`).
+    - Implementacja rejestracji (formularz + integracja z API `/api/auth/register/`).
+    - Zarządzanie stanem (np. tokeny JWT, dane użytkownika).
+    - Rozbudowa Dashboardu.
