@@ -25,7 +25,8 @@ services:
     volumes:
       - ./backend:/app # Mapujemy kod backendu do kontenera dla łatwego developmentu
     ports:
-      - "8000:8000" # Mapujemy port Django
+      - "8082:8000" # Mapujemy port Django na 8082 (HTTP)
+      - "8083:8001" # Mapujemy port Django na 8083 (HTTPS)
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}

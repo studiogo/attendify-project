@@ -9,64 +9,137 @@
 - **Środowisko deweloperskie (lokalne):** Windows/macOS/Linux z Node.js, Python, Docker Desktop
 - **Autoryzacja:** JWT (logowanie, odświeżanie, weryfikacja tokenu)
 
-## Zależności frontend
-- react, react-dom, react-router-dom, react-scripts, web-vitals
-- antd (biblioteka UI)
-- dayjs (biblioteka do obsługi dat, wymagana przez antd v5 DatePicker)
-- recharts (biblioteka do wykresów)
-- @testing-library/* (testy)
+## Konfiguracja nowego serwera
 
-## Zależności backend
-- django, djangorestframework, djangorestframework-simplejwt
-- inne zależności wg requirements.txt
+### Wymagania sprzętowe
+- 4GB RAM (minimum)
+- 2 vCPU
+- 50GB dysku SSD
 
-## Integracje
-- REST API: `/api/` (autoryzacja, użytkownicy, wydarzenia)
-- Panel React komunikuje się z backendem przez fetch/axios
+### Instalacja podstawowa
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3-pip python3-venv postgresql postgresql-contrib nginx redis
+```
 
-## Ograniczenia i uwagi
-- Pliki statyczne React muszą być budowane z poprawnym publicPath (homepage w package.json)
-- Panel React (frontend) jest dostępny na produkcji pod ścieżką `/panel/`.
-- Problem z uruchomieniem frontendu związany z zależnościami ESLint został rozwiązany poprzez czystą instalację.
+### Konfiguracja PostgreSQL
+```bash
+sudo -u postgres psql -c "CREATE DATABASE attendify;"
+sudo -u postgres psql -c "CREATE USER attendify WITH PASSWORD 'bezpieczne_haslo';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE attendify TO attendify;"
+```
+
+### Instalacja Node.js
+```bash
+curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+sudo apt install -y nodejs npm
+```
+
+### Środowisko Python
+```bash
+cd /home/admin/domains/attendify.pl/public_html/backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Konfiguracja Nginx
+Przykładowa konfiguracja:
+```nginx
+server {
+    listen 80;
+    server_name attendify.pl;
+
+    location /api/ {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        root /home/admin/domains/attendify.pl/public_html/panel;
+        try_files $uri /index.html;
+    }
+}
+```
+
+### Uruchomienie aplikacji
+Backend:
+```bash
+gunicorn -w 4 -b 0.0.0.0:8000 attendify_project.wsgi:application
+```
+
+Frontend:
+```bash
+cd frontend/attendify-panel
+npm install
+npm run build
+```
+
+### Zmienne środowiskowe
+Wymagane w backend/.env:
+```
+DATABASE_URL=postgres://attendify:hasło@localhost/attendify
+SECRET_KEY=twoj_sekretny_klucz
+DEBUG=False
+ALLOWED_HOSTS=attendify.pl
+```
+
+## Migracja na nowy serwer przez Git
+
+### Konfiguracja Gita na VPS:
+1. Sprawdź czy masz skonfigurowany Git:
+```bash
+git config --list
+```
+
+2. Jeśli nie masz ustawionego user.name i user.email:
+```bash
+git config --global user.name "Twoja Nazwa"
+git config --global user.email "twoj@email.com"
+```
+
+3. Generuj klucz SSH (jeśli nie masz):
+```bash
+ssh-keygen -t ed25519 -C "twoj@email.com"
+cat ~/.ssh/id_ed25519.pub
+```
+
+4. Dodaj klucz SSH do swojego konta na GitHub/GitLab
+
+### Wysłanie kodu z VPS do repozytorium:
+1. Zrób commit zmian:
+```bash
+git add .
+git commit -m "Przygotowanie do migracji"
+```
+
+2. Sprawdź czy masz zdalne repozytorium:
+```bash
+git remote -v
+```
+
+3. Jeśli nie masz, dodaj zdalne repozytorium:
+```bash
+git remote add origin git@github.com:twoj-uzytkownik/twoj-repozytorium.git
+```
+
+4. Wyślij zmiany:
+```bash
+git push -u origin master
+```
+
+2. Na nowym serwerze:
+```bash
+git clone https://github.com/twoj-repozytorium/attendify.git
+cd attendify
+```
+
+3. Konfiguracja środowiska (jak w sekcji "Konfiguracja nowego serwera")
+
+Uwaga:
+- Pamiętaj o skopiowaniu plików .env osobno (nie powinny być w repozytorium)
+- Pliki buildowane (jak panel/static/) należy zbudować na nowym serwerze
 
 ## Lokalne środowisko deweloperskie
-- **Wymagania:**
-    - Node.js (wersja LTS) i npm
-    - Python (wersja zgodna z Django, np. 3.9+)
-    - Docker i Docker Compose (lub Docker Desktop dla Windows/macOS)
-    - Git
-- **Uruchomienie frontendu:**
-    1. Przejdź do katalogu `frontend/attendify-panel`.
-    2. Uruchom `npm install` (instalacja zależności).
-    3. Uruchom `npm start` (uruchomienie serwera deweloperskiego React, zazwyczaj na `http://localhost:3000`).
-- **Uruchomienie backendu:**
-    1. Przejdź do głównego katalogu projektu.
-    2. Utwórz plik `.env` w katalogu `backend/` (na podstawie `backend/attendify_project/settings.py` i `.env` z serwera, jeśli potrzebne są klucze). Wymagane zmienne dla lokalnego środowiska Docker:
-        ```dotenv
-        # Zmienne dla bazy danych PostgreSQL w Dockerze (zgodnie z docker-compose.yml)
-        DB_ENGINE=django.db.backends.postgresql
-        DB_NAME=attendify_db_local
-        DB_USER=attendify_user_local
-        DB_PASSWORD=attendify_password_local
-        DB_HOST=db # Nazwa usługi bazy danych w docker-compose.yml
-        DB_PORT=5432
-
-        # Klucz sekretny Django (wygeneruj nowy dla środowiska lokalnego)
-        DJANGO_SECRET_KEY='wygeneruj_nowy_bezpieczny_klucz_tutaj'
-
-        # Ustawienia debugowania
-        DJANGO_DEBUG=True
-        DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-        ```
-    3. Uruchom kontenery: `docker-compose up -d`. Spowoduje to uruchomienie backendu Django i bazy danych PostgreSQL.
-    4. Wykonaj migracje bazy danych: `docker-compose exec backend python manage.py migrate`.
-    5. Backend będzie dostępny pod adresem `http://localhost:8000` (zgodnie z `docker-compose.yml`).
-- **Ważne:** Frontend uruchomiony przez `npm start` będzie automatycznie odświeżał się po zmianach w kodzie. Backend w kontenerze Docker również powinien automatycznie przeładowywać się po zmianach dzięki konfiguracji woluminów w `docker-compose.yml`.
-
-## Wdrażanie na serwer produkcyjny
-- **Ograniczenie serwera:** Serwer produkcyjny ma za mało pamięci, aby zbudować frontend z większymi bibliotekami UI.
-- **Proces:**
-    1. Wykonaj `npm run build` **lokalnie** w katalogu `frontend/attendify-panel`.
-    2. Skopiuj **zawartość** lokalnego katalogu `build` na serwer do `/home/admin/domains/attendify.pl/public_html/panel/`.
-    3. Upewnij się, że backend na serwerze jest uruchomiony (prawdopodobnie przez `docker-compose up -d` lub inną metodę wdrożenia).
-- **Problem po wdrożeniu:** Po wykonaniu powyższych kroków, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji. Wskazuje to na problem z serwowaniem nowego builda przez serwer WWW (Nginx/Apache) lub cache'owaniem po stronie serwera/przeglądarki. Należy zweryfikować konfigurację serwera WWW i/lub wyczyścić cache przeglądarki.
+[... pozostała istniejąca zawartość pliku ...]

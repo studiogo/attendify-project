@@ -12,10 +12,11 @@ function Login({ onLogin }) {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/token/", {
+      const response = await fetch('/api/auth/token/', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: email, password }),
+        credentials: "include"
       });
       if (!response.ok) {
         throw new Error("Nieprawidłowy email lub hasło");

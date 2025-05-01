@@ -7,3 +7,4 @@ typing-extensions==4.13.2
 djangorestframework
 djangorestframework-simplejwt
 ics
+django-cors-headers==4.3.1
