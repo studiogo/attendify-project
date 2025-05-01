@@ -12,6 +12,8 @@
 - Panel React jako SPA – fallback na index.html (jeśli potrzebny, do konfiguracji w Nginx).
 - Każda funkcjonalność panelu (logowanie, rejestracja, dashboard) oparta o endpointy backendu.
 - Pliki statyczne i index.html kopiowane do katalogu docelowego po każdym buildzie.
+- Do wizualizacji statystyk w panelu używana jest biblioteka `recharts`.
+- **Problem na produkcji:** Po wdrożeniu nowego builda frontendu, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji. Wymaga to weryfikacji konfiguracji Nginx serwującego statyczne pliki, w tym potencjalnego cache'owania.
 
 ## Relacje komponentów
 - Panel React komunikuje się z backendem przez fetch/axios (autoryzacja, pobieranie danych, operacje CRUD).

@@ -1,7 +1,7 @@
-dziala# techContext.md
+# techContext.md
 
 ## Technologie i narzędzia
-- **Frontend:** React (create-react-app), react-router-dom
+- **Frontend:** React (create-react-app), react-router-dom, recharts (do wykresów)
 - **Backend:** Django 4.x, Django REST Framework, Simple JWT
 - **Baza danych:** MySQL (na serwerze), PostgreSQL (lokalnie w Dockerze)
 - **Konteneryzacja:** Docker, Docker Compose (dla backendu i bazy danych)
@@ -11,6 +11,9 @@ dziala# techContext.md
 
 ## Zależności frontend
 - react, react-dom, react-router-dom, react-scripts, web-vitals
+- antd (biblioteka UI)
+- dayjs (biblioteka do obsługi dat, wymagana przez antd v5 DatePicker)
+- recharts (biblioteka do wykresów)
 - @testing-library/* (testy)
 
 ## Zależności backend
@@ -24,6 +27,7 @@ dziala# techContext.md
 ## Ograniczenia i uwagi
 - Pliki statyczne React muszą być budowane z poprawnym publicPath (homepage w package.json)
 - Panel React (frontend) jest dostępny na produkcji pod ścieżką `/panel/`.
+- Problem z uruchomieniem frontendu związany z zależnościami ESLint został rozwiązany poprzez czystą instalację.
 
 ## Lokalne środowisko deweloperskie
 - **Wymagania:**
@@ -65,3 +69,4 @@ dziala# techContext.md
     1. Wykonaj `npm run build` **lokalnie** w katalogu `frontend/attendify-panel`.
     2. Skopiuj **zawartość** lokalnego katalogu `build` na serwer do `/home/admin/domains/attendify.pl/public_html/panel/`.
     3. Upewnij się, że backend na serwerze jest uruchomiony (prawdopodobnie przez `docker-compose up -d` lub inną metodę wdrożenia).
+- **Problem po wdrożeniu:** Po wykonaniu powyższych kroków, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji. Wskazuje to na problem z serwowaniem nowego builda przez serwer WWW (Nginx/Apache) lub cache'owaniem po stronie serwera/przeglądarki. Należy zweryfikować konfigurację serwera WWW i/lub wyczyścić cache przeglądarki.
