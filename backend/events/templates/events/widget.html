@@ -9,25 +9,25 @@
             font-family: sans-serif;
             margin: 0;
             padding: 15px;
-            background-color: #f8f9fa;
-            color: #333;
+            /* Używamy kolorów z customization, z fallbackiem na domyślne */
+            background-color: {{ customization.bg_color | default:'#ffffff' }};
+            color: {{ customization.text_color | default:'#000000' }};
             font-size: 14px;
             line-height: 1.5;
-            border: 1px solid #dee2e6;
+            border: 1px solid #dee2e6; /* Można też dostosować kolor ramki */
             border-radius: 5px;
-            /* Domyślne kolory - mogą być nadpisane przez customization */
-            --primary-color: {{ customization.primaryColor | default:'#007bff' }};
-            --text-color-on-primary: #ffffff;
+            /* Usunięto zmienne CSS --primary-color, bo używamy bezpośrednio kolorów */
         }
         .widget-container {
-            max-width: 400px; /* Ograniczenie szerokości */
+            max-width: 100%; /* Używamy pełnej szerokości iframe */
             margin: auto;
         }
         h3 {
             margin-top: 0;
             margin-bottom: 10px;
             font-size: 1.1em;
-            color: var(--primary-color);
+            /* Kolor nagłówka taki sam jak tekst */
+            color: inherit;
         }
         p {
             margin-bottom: 8px;
@@ -44,8 +44,10 @@
         .calendar-button {
             display: inline-block;
             padding: 8px 12px;
-            background-color: var(--primary-color);
-            color: var(--text-color-on-primary);
+            /* Używamy koloru tekstu jako tła przycisku i koloru tła jako tekstu przycisku dla kontrastu */
+            /* Można by dodać oddzielne pola w formularzu na kolory przycisków */
+            background-color: {{ customization.text_color | default:'#000000' }};
+            color: {{ customization.bg_color | default:'#ffffff' }};
             text-decoration: none;
             border-radius: 4px;
             font-size: 0.9em;
@@ -65,20 +67,12 @@
         .logo-hidden { /* Klasa do ukrywania logo */
             display: none;
         }
-        .logo-container img {
-            max-width: 150px;
-            max-height: 50px;
-        }
+        /* Usunięto style logo, bo nie ma tej funkcji w formularzu */
     </style>
 </head>
 <body>
-    {# Dodajemy klasę logo-hidden warunkowo #}
-    <div class="widget-container {% if not customization.showLogo %}logo-hidden{% endif %}">
-        {% if customization.logoUrl %} {# Sprawdzamy tylko czy jest URL, ukrywanie załatwia klasa #}
-        <div class="logo-container">
-            <img src="{{ customization.logoUrl }}" alt="Logo Organizatora">
-        </div>
-        {% endif %}
+    {# Usunięto sekcję logo #}
+    <div class="widget-container">
 
         <h3>{{ event.title }}</h3>
 

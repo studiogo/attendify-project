@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-// Import Layout
-import { Form, Input, Button, Alert, Spin, Row, Col, Typography, message, Layout } from 'antd';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Form, Input, Button, Alert, Spin, Row, Col, Typography, message } from 'antd';
+import { LockOutlined, MailOutlined } from '@ant-design/icons'; // Removed UserOutlined
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 const { Title } = Typography;
-const { Content } = Layout; // Import Content
 
 function Register() {
   const [error, setError] = useState(null);
@@ -24,7 +22,7 @@ function Register() {
       password: values.password,
       password2: values.confirmPassword, // Add the confirmation password
     };
-    const API_BASE_URL = 'http://localhost:8001'; // Define backend base URL (PORT CHANGED!)
+    const API_BASE_URL = 'http://localhost:8000'; // Define backend base URL
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/register/`, { // Use full URL
@@ -66,15 +64,12 @@ function Register() {
   };
 
   return (
-    // Apply dark purple gradient background
-    <Layout style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #4a0e6c, #8a2be2)' }}>
-      <Content style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '50px' }}>
-         {/* Keep the white container for the form */}
-        <div style={{ background: '#fff', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', width: '100%', maxWidth: '400px' }}> {/* Slightly stronger shadow */}
-          <Spin spinning={loading} tip="Rejestrowanie...">
-            <Title level={2} style={{ textAlign: 'center', marginBottom: '32px' }}>Rejestracja w Attendify</Title> {/* Updated Title */}
-            {error && (
-              <Alert
+    <Row justify="center" align="middle" style={{ minHeight: '80vh' }}>
+      <Col xs={22} sm={16} md={12} lg={8} xl={6}>
+        <Spin spinning={loading} tip="Rejestrowanie...">
+          <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>Rejestracja</Title>
+          {error && (
+            <Alert
               message="Błąd rejestracji"
               description={error}
               type="error"
@@ -131,16 +126,15 @@ function Register() {
               <Input.Password prefix={<LockOutlined />} placeholder="Potwierdź hasło" autoComplete="new-password" />
             </Form.Item>
 
-            <Form.Item style={{ marginBottom: 0 }}> {/* Remove default bottom margin */}
-              <Button type="primary" htmlType="submit" block loading={loading} size="large"> {/* Larger button */}
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block loading={loading}>
                 Zarejestruj się
               </Button>
             </Form.Item>
           </Form>
-         </Spin>
-        </div>
-      </Content>
-    </Layout>
+        </Spin>
+      </Col>
+    </Row>
   );
 }
 

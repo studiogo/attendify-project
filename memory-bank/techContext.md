@@ -64,9 +64,48 @@
 - **Ważne:** Frontend uruchomiony przez `npm start` będzie automatycznie odświeżał się po zmianach w kodzie. Backend w kontenerze Docker również powinien automatycznie przeładowywać się po zmianach dzięki konfiguracji woluminów w `docker-compose.yml`.
 
 ## Wdrażanie na serwer produkcyjny
-- **Ograniczenie serwera:** Serwer produkcyjny ma za mało pamięci, aby zbudować frontend z większymi bibliotekami UI.
-- **Proces:**
-    1. Wykonaj `npm run build` **lokalnie** w katalogu `frontend/attendify-panel`.
-    2. Skopiuj **zawartość** lokalnego katalogu `build` na serwer do `/home/admin/domains/attendify.pl/public_html/panel/`.
-    3. Upewnij się, że backend na serwerze jest uruchomiony (prawdopodobnie przez `docker-compose up -d` lub inną metodę wdrożenia).
-- **Problem po wdrożeniu:** Po wykonaniu powyższych kroków, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji. Wskazuje to na problem z serwowaniem nowego builda przez serwer WWW (Nginx/Apache) lub cache'owaniem po stronie serwera/przeglądarki. Należy zweryfikować konfigurację serwera WWW i/lub wyczyścić cache przeglądarki.
+
+### Aktualny stan produkcyjny
+- Frontend: dostępny pod `attendify.pl/panel/` (stara wersja)
+- Backend: dostępny pod `api.attendify.pl` (prawdopodobnie Docker)
+- Baza danych: MariaDB/MySQL
+
+### Proces migracji przez GitHub
+1. Utwórz prywatne repozytorium GitHub dla projektu
+2. Dodaj plik .gitignore z wykluczeniem:
+   - node_modules/
+   - .env
+   - __pycache__/
+3. Wgraj kod na GitHub:
+   ```
+   git init
+   git remote add origin [URL_REPOZYTORIUM]
+   git add .
+   git commit -m "Initial commit"
+   git push -u origin main
+   ```
+4. Na serwerze produkcyjnym:
+   ```
+   git clone [URL_REPOZYTORIUM]
+   cd attendify
+   ```
+
+### Kroki wdrożeniowe
+1. **Backend:**
+   - Skopiuj plik .env z ustawieniami produkcyjnymi
+   - Uruchom kontenery: `docker-compose up -d --build`
+   - Wykonaj migracje: `docker-compose exec backend python manage.py migrate`
+
+2. **Frontend:**
+   - Zbuduj lokalnie: `cd frontend/attendify-panel && npm run build`
+   - Skopiuj build na serwer: `scp -r build/ user@server:/var/www/attendify-panel`
+
+3. **Konfiguracja Nginx:**
+   - Skonfiguruj reverse proxy dla backendu
+   - Ustaw serwowanie plików statycznych frontendu
+   - Wyczyść cache: `nginx -s reload`
+
+### Weryfikacja
+1. Sprawdź działanie API: `curl https://api.attendify.pl/api/healthcheck`
+2. Sprawdź frontend: otwórz `https://attendify.pl/panel/` w trybie incognito
+3. Sprawdź logi: `docker-compose logs -f` i `tail -f /var/log/nginx/error.log`

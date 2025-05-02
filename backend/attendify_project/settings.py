@@ -54,10 +54,12 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'corsheaders', # Dodano corsheaders
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # Dodano CorsMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -201,3 +203,46 @@ SIMPLE_JWT = {
     # "CLAIMS_NAMESPACE": None,
     # "CLAIM_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
 }
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", # Adres serwera deweloperskiego React (domyślny)
+    "http://localhost:3001", # Adres serwera deweloperskiego React (alternatywny)
+    "http://localhost:3002", # Adres serwera deweloperskiego React (kolejny)
+    "http://localhost:3003", # Adres serwera deweloperskiego React (aktualny)
+    # Dodaj tutaj adresy URL frontendu produkcyjnego, jeśli jest inny
+]
+
+# Opcjonalnie: Zezwól na wszystkie źródła (mniej bezpieczne, używaj ostrożnie)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# Opcjonalnie: Zezwól na wysyłanie ciasteczek (jeśli używasz uwierzytelniania sesyjnego)
+# CORS_ALLOW_CREDENTIALS = True
+
+# Opcjonalnie: Zdefiniuj dozwolone metody HTTP
+# CORS_ALLOW_METHODS = [
+#     "DELETE",
+#     "GET",
+#     "OPTIONS",
+#     "PATCH",
+#     "POST",
+#     "PUT",
+# ]
+
+# Opcjonalnie: Zdefiniuj dozwolone nagłówki
+# CORS_ALLOW_HEADERS = [
+#     "accept",
+#     "authorization",
+#     "content-type",
+#     "user-agent",
+#     "x-csrftoken",
+#     "x-requested-with",
+# ]
+
+# Email Backend Configuration (for development: print emails to console)
+# https://docs.djangoproject.com/en/4.2/topics/email/#console-backend
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# You can optionally set default email addresses, but console backend doesn't use them
+# DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+# SERVER_EMAIL = 'root@localhost'

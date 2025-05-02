@@ -19,14 +19,37 @@
     - **UI/UX:** Interfejs użytkownika dopracowany (Ant Design, layout, nawigacja, responsywność).
     - **Uruchomienie:** Serwer dewelwoperski frontendu uruchamia się poprawnie po rozwiązaniu problemu z zależnościami.
 
+## Aktualny stan produkcyjny
+- **Frontend:** Stara wersja dostępna pod `attendify.pl/panel/`
+- **Backend:** Prawdopodobnie Docker, dostępny pod `api.attendify.pl`
+- **Baza danych:** MariaDB/MySQL
+
+## Zadania migracyjne
+1. **Przygotowanie repozytorium:**
+   - Utworzyć prywatne repo GitHub
+   - Dodać odpowiedni .gitignore
+   - Wgrać aktualny kod
+
+2. **Migracja backendu:**
+   - Skopiować plik .env z ustawieniami produkcyjnymi
+   - Uruchomić kontenery Docker
+   - Wykonać migracje bazy danych
+
+3. **Migracja frontendu:**
+   - Zbudować nową wersję lokalnie
+   - Wgrać na serwer produkcyjny
+   - Skonfigurować Nginx
+
+4. **Weryfikacja:**
+   - Sprawdzić działanie API
+   - Przetestować nowy frontend
+   - Monitorować logi
+
 ## Co zostało do zrobienia
-- **Funkcjonalności (potencjalne):**
-    - Bardziej szczegółowa obsługa błędów API.
-    - Dalsza rozbudowa statystyk (np. wykresy trendów, filtrowanie wg dat).
-    - Personalizacja widżetu (np. dodanie możliwości wgrywania logo).
-- **Testowanie:** Dokładniejsze testy funkcjonalne i wizualne.
-- **Wdrożenie na serwer:** Wdrożenie aktualnej wersji na serwer produkcyjny.
-- **Problem na produkcji:** Po wdrożeniu nowego builda frontendu, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji.
+- **Rozwiązanie problemów:**
+    - Cache'owanie starej wersji frontendu
+    - Konfiguracja reverse proxy w Nginx
+    - Synchronizacja środowisk dev/prod
 
 ## Status
 - **Faza 1 zakończona w środowisku lokalnym:** Wszystkie kluczowe funkcjonalności Fazy 1 zostały zaimplementowane i działają poprawnie.

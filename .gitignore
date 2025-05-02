@@ -1,39 +1,51 @@
+# Node
+node_modules/
+npm-debug.log
+
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.egg-info/
-dist/
-build/
-*.log
-*.pot
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Virtual environment
-backend/venv/
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
 
-# Environment variables
-.env # Ignore .env file in the root directory
-
-# Node.js
-frontend/attendify-panel/node_modules/
-frontend/attendify-panel/build/
-frontend/attendify-panel/.pnp.*
-frontend/attendify-panel/.env.local
-frontend/attendify-panel/.env.development.local
-frontend/attendify-panel/.env.test.local
-frontend/attendify-panel/.env.production.local
-frontend/attendify-panel/npm-debug.log*
-frontend/attendify-panel/yarn-debug.log*
-frontend/attendify-panel/yarn-error.log*
-
-# IDE / Editor specific
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS generated files
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Docker
+*.env
+docker-compose.override.yml
+
+# Frontend
 .DS_Store
+*.css.map
+*.js.map
+
+# System Files
 Thumbs.db

@@ -33,5 +33,23 @@
 - **Problem:** Po wdrożeniu nowego builda frontendu, na domenie `attendify.pl/panel/` nadal wyświetla się stara wersja aplikacji. Backend w Dockerze został uruchomiony.
 
 ## Decyzje i kolejne kroki
-- **Zakończono:** Rozwiązano problem z wyświetlaniem statystyk, podstawowa rozbudowa statystyk (dodanie wykresu kołowego), naprawa problemu z uruchomieniem frontendu, próba wdrożenia na produkcję.
-- **Następny krok:** Diagnoza problemu z serwowaniem starej wersji frontendu na produkcji. Potencjalne przyczyny to cache przeglądarki/serwera, nieprawidłowa konfiguracja Nginx, lub błąd w procesie kopiowania plików.
+- **Zakończono:** 
+  - Rozwiązanie problemów z wyświetlaniem statystyk
+  - Rozbudowa funkcjonalności statystyk
+  - Naprawa problemów z uruchomieniem frontendu
+  - Próba wdrożenia na produkcję
+  - Przygotowanie procesu migracji przez GitHub
+
+- **W trakcie:**
+  - Migracja kodu do repozytorium GitHub
+  - Aktualizacja dokumentacji technicznej
+
+- **Następne kroki:**
+  1. Wdrożenie nowej wersji przez GitHub:
+     - Utworzenie prywatnego repozytorium
+     - Konfiguracja .gitignore
+     - Wgranie kodu
+  2. Rozwiązanie problemów produkcyjnych:
+     - Cache'owanie starej wersji frontendu
+     - Konfiguracja Nginx
+     - Weryfikacja działania API

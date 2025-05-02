@@ -4,10 +4,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated # Dodajemy IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView # Dodajemy APIView
+from rest_framework.views import APIView
 
-from .models import UserSettings # Importujemy model
-from .serializers import UserRegisterSerializer, UserSerializer, UserSettingsSerializer # Dodajemy UserSettingsSerializer
+from .models import UserSettings
+# Dodajemy PasswordResetRequestSerializer i PasswordResetConfirmSerializer
+from .serializers import (
+    UserRegisterSerializer, UserSerializer, UserSettingsSerializer,
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+)
 
 class RegisterView(generics.CreateAPIView):
     """
@@ -67,3 +71,36 @@ class UserSettingsView(generics.RetrieveUpdateAPIView):
 
     # Metoda perform_update nie jest potrzebna, bo RetrieveUpdateAPIView
     # sam zapisze zmiany w obiekcie zwróconym przez get_object.
+
+
+class PasswordResetRequestView(generics.GenericAPIView):
+    """
+    Widok API do inicjowania procesu resetowania hasła.
+    Przyjmuje POST z adresem email.
+    Wysyła email (do konsoli w trybie dev) z linkiem resetującym.
+    """
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [AllowAny] # Każdy może poprosić o reset
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Pass request directly to the save method
+        serializer.save(request=request)
+        # Zawsze zwracamy sukces, aby nie ujawniać, czy email istnieje
+        return Response({"message": "Jeśli konto istnieje, wysłano link do resetowania hasła."}, status=status.HTTP_200_OK)
+
+
+class PasswordResetConfirmView(generics.GenericAPIView):
+    """
+    Widok API do potwierdzenia resetowania hasła i ustawienia nowego.
+    Przyjmuje POST z uid, token, new_password1, new_password2.
+    """
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [AllowAny] # Link jest publiczny, ale chroniony tokenem
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save() # Metoda save serializera zapisze nowe hasło
+        return Response({"message": "Hasło zostało pomyślnie zresetowane."}, status=status.HTTP_200_OK)
